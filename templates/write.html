@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>写日记</title>
+</head>
+<body>
+    <h2>写日记</h2>
+
+    <div>
+        <label for="day">填写时间</label>
+        <input type="date" id="day" name="date" required>
+        <span id="dayError" style="color:red; display:none;">时间不能为空！</span>
+
+        <label for="content">填写内容</label>
+        <input type="text" id="content" name="content" required>
+        <span id="contentError" style="color:red; display:none;">内容不能为空！</span>
+
+        <button type="button" id="submit">提交</button>
+    </div>
+
+    <script>
+        const submitBtn = document.getElementById('submit');
+        const dayInput = document.getElementById('day');
+        const contentInput = document.getElementById('content');
+        const dayError = document.getElementById('dayError');
+        const contentError = document.getElementById('contentError');
+
+        submitBtn.addEventListener('click', () => {
+            // 清除错误信息
+            dayError.style.display = 'none';
+            contentError.style.display = 'none';
+
+            const date = dayInput.value;
+            const content = contentInput.value;
+
+            if (!date) {
+                dayError.style.display = 'block';
+                return;
+            }
+
+            if (!content) {
+                contentError.style.display = 'block';
+                return;
+            }
+
+            // 使用FormData提交数据
+            const formData = new FormData();
+            formData.append('date', date);
+            formData.append('content', content);
+
+            // 禁用按钮防止重复提交
+            submitBtn.disabled = true;
+            submitBtn.textContent = '提交中...';
+
+            fetch('write_page', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('响应状态:', response.status);
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.log('错误响应内容:', text);
+                        throw new Error('网络响应不正常，状态码：' + response.status);
+                    });
+                }
+                return response.text();
+            })
+            .then(data => {
+                console.log('服务器返回:', data);
+                alert('提交成功！');
+                // 清空输入框
+                dayInput.value = '';
+                contentInput.value = '';
+                window.location.href = '/'; // 跳转回主页
+            })
+            .catch(error => {
+                console.error('提交失败:', error);
+                alert('提交失败：' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = '提交';
+            });
+        });
+    </script>
+</body>
+</html>

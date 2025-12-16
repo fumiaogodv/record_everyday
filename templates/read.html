@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>日记列表</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .diary-item {
+            border: 1px solid #ddd;
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .diary-date {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .diary-content {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h2>日记列表</h2>
+    <a href="/" class="back-link">← 返回首页</a>
+
+    <div id="diaries">
+        {% if diaries %}
+            {% for diary in diaries %}
+            <div class="diary-item">
+                <div class="diary-date">时间: {{ diary.date_time }}</div>
+                <div class="diary-content">{{ diary.messages }}</div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center; color: #666;">还没有日记内容</p>
+        {% endif %}
+    </div>
+</body>
+</html>
