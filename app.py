@@ -4,29 +4,29 @@ import os
 
 app = Flask(__name__)
 
-# ##################################################################
-#  关键修改部分：添加一个中间件来处理 URL 前缀
-# ##################################################################
-class PrefixMiddleware(object):
-    def __init__(self, app, prefix=''):
-        self.app = app
-        self.prefix = prefix
-
-    def __call__(self, environ, start_response):
-        # 如果请求路径以指定的前缀开头，则移除前缀
-        # 例如，将 /hello/wuziqi 修改为 /wuziqi
-        if environ['PATH_INFO'].startswith(self.prefix):
-            environ['PATH_INFO'] = environ['PATH_INFO'][len(self.prefix):]
-            environ['SCRIPT_NAME'] = self.prefix
-            return self.app(environ, start_response)
-        else:
-            # 如果不匹配前缀，直接返回 404
-            start_response('404', [('Content-Type', 'text/plain')])
-            return ["This URL does not belong to the app.".encode()]
-
-# 将你的 Flask 应用包装在这个中间件中
-app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/hello')
-# ##################################################################
+# # ##################################################################
+# #  关键修改部分：添加一个中间件来处理 URL 前缀
+# # ##################################################################
+# class PrefixMiddleware(object):
+#     def __init__(self, app, prefix=''):
+#         self.app = app
+#         self.prefix = prefix
+#
+#     def __call__(self, environ, start_response):
+#         # 如果请求路径以指定的前缀开头，则移除前缀
+#         # 例如，将 /hello/wuziqi 修改为 /wuziqi
+#         if environ['PATH_INFO'].startswith(self.prefix):
+#             environ['PATH_INFO'] = environ['PATH_INFO'][len(self.prefix):]
+#             environ['SCRIPT_NAME'] = self.prefix
+#             return self.app(environ, start_response)
+#         else:
+#             # 如果不匹配前缀，直接返回 404
+#             start_response('404', [('Content-Type', 'text/plain')])
+#             return ["This URL does not belong to the app.".encode()]
+#
+# # 将你的 Flask 应用包装在这个中间件中
+# app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/hello')
+# # ##################################################################
 
 
 
@@ -88,6 +88,28 @@ def write():
     else:
         return render_template('write.html')
 
+
+@app.route('/delete_page', methods=['GET', 'POST'])
+def delete():
+    if request.method == "POST":
+        try:
+            diary_id = request.form.get('id')
+            # 必须先查出对象
+            item = Diary.query.get(diary_id)
+            if item:
+                db.session.delete(item)
+                db.session.commit()
+                # 如果是 fetch 请求，返回 200 状态码即可
+                return "OK", 200
+            else:
+                return "Record not found", 404
+        except Exception as e:
+            db.session.rollback()
+            return str(e), 500
+
+    # GET 请求逻辑
+    diaries = Diary.query.order_by(Diary.id.desc()).all()
+    return render_template('delect.html', diaries=diaries)
 
 if __name__ == "__main__":
     print("启动Flask应用...")

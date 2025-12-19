@@ -30,17 +30,22 @@
 <!--    <a href="/read_page" class="btn">查看日记</a>-->
     <button class="btn" id="write" >写日记</button>
     <button class="btn" id="read">查看日记</button>
+    <button class="btn" id="delete">删除日记</button>
 </body>
 <script>
     const read =document.getElementById('read')
     const write=document.getElementById('write')
-
+    const deletct=document.getElementById('delete')
     read.addEventListener('click',()=>{
         window.location.href = '{{ url_for("read") }}';
     })
 
     write.addEventListener('click',()=>{
         window.location.href = '{{ url_for("write") }}';
+    })
+
+    deletct.addEventListener('click',()=>{
+       window.location.href='{{ url_for("delete") }}';
     })
 </script>
 </html>

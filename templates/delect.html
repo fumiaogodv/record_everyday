@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>日记删除列表</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .diary-item {
+            border: 1px solid #ddd;
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .diary-date {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .diary-content {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<div id="diaries">
+    {% for diary in diaries %}
+    <div class="diary-item">
+        <div class="diary-date">时间: {{ diary.date_time }}</div>
+        <div class="diary-content">{{ diary.messages }}</div>
+        <!-- 确保类名一致 -->
+        <button class="delete-btn" data-id="{{ diary.id }}">删除</button>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    // 1. 选择正确的类名 .delete-btn
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            // 2. 获取当前点击按钮的 id
+            const diaryId = this.getAttribute('data-id');
+            const currentBtn = this; // 保存当前按钮引用
+
+            if (!confirm('确定要删除这条记录吗？')) return;
+
+            // 3. 修正拼写：FormData (大写 F)
+            const formData = new FormData();
+            formData.append('id', diaryId);
+
+            // 禁用按钮防止重复点击
+            currentBtn.disabled = true;
+            currentBtn.textContent = '删除中...';
+
+            fetch("/delete_page", {
+                method: "POST",
+                body: formData // 发送 FormData
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('删除成功！');
+                    location.reload(); // 删除成功后刷新当前页面
+                } else {
+                    throw new Error('删除失败');
+                }
+            })
+            .catch(error => {
+                console.error('错误:', error);
+                alert('操作失败');
+                currentBtn.disabled = false;
+                currentBtn.textContent = '删除';
+            });
+        });
+    });
+</script>
+</html>
